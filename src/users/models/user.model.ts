@@ -86,8 +86,11 @@ export class User extends Document {
   @Prop({ type: Boolean, required: true, default: false })
   isDeleted: boolean;
 
-  //   @Field(() => Number, { nullable: true })
-  //   enrollmentCount?: number;
+  @Field(() => Number, { nullable: true })
+  matcherCount?: number;
+
+  @Field(() => Number, { nullable: true })
+  matcheeCount?: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

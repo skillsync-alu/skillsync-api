@@ -18,9 +18,6 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@skillsync/*": ["./src/*"]
-    },
     "types": ["node", "express", "jest"]
   }
 }

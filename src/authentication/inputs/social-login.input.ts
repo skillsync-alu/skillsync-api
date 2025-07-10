@@ -11,11 +11,6 @@ export class SocialLoginInput {
   })
   type: SocialLoginType;
 
-  @Field(() => Boolean, { defaultValue: true, nullable: true })
-  @IsBoolean()
-  @IsOptional()
-  shouldSubscribe?: boolean;
-
   @Field(() => UserType, { nullable: true })
   @IsOptional()
   @IsEnum(UserType, {

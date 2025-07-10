@@ -7,7 +7,7 @@ import {
   IsOptional
 } from "class-validator";
 import { UserType } from "../../users/interfaces/user.interface";
-import { CountryCodeType } from "src/shared/constants/shared.constant";
+import { CountryCodeType } from "../../shared/constants/shared.constant";
 import { CountryCode } from "libphonenumber-js";
 
 @InputType()

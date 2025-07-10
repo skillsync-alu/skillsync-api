@@ -1,6 +1,6 @@
 import { InputType, PartialType, OmitType, Field } from "@nestjs/graphql";
 import { CreateUserInput } from "../../authentication/inputs/create-user.input";
-import { FileInput } from "src/shared/inputs/file.input";
+import { FileInput } from "../../shared/inputs/file.input";
 import { UserSocialsInput } from "./user-socials.input";
 
 @InputType()

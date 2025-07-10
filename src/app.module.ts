@@ -8,8 +8,14 @@ import { AppService } from "./app.service";
 import { UserModule } from "./users/user.module";
 import { SharedModule } from "./shared/shared.module";
 import { AuthenticationModule } from "./authentication/authentication.module";
+import { MatchModule } from "./matches/match.module";
 
-const GraphQLModules = [UserModule, SharedModule, AuthenticationModule];
+const GraphQLModules = [
+  UserModule,
+  MatchModule,
+  SharedModule,
+  AuthenticationModule
+];
 
 const ServerModules = [
   MongooseModule.forRoot(config.database.uri),
@@ -23,8 +29,8 @@ const ServerModules = [
     autoSchemaFile: true,
     driver: ApolloDriver,
     include: GraphQLModules,
-    fieldResolverEnhancers: ["guards"]
-    // context: ({ req, res }) => ({ req, res })
+    fieldResolverEnhancers: ["guards"],
+    context: ({ req, res }) => ({ req, res })
   })
 ];
 

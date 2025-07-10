@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import { PaginationResponse } from "../responses/pagination.response";
 import dayjs from "dayjs";
 import { toFixed } from "../../../../utilities/to-fixed";
-import { Document } from "@skillsync/shared/models/document.model";
+import { Document } from "../../../../shared/models/document.model";
 
 @Injectable()
 export class PaginationService {

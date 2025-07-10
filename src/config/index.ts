@@ -20,7 +20,7 @@ export const config = {
     uri: String(process.env.DATABASE_URI) || ""
   },
   environment: {
-    state: process.env.NODE_ENV
+    state: isProduction ? "production" : "development"
   },
   tokenization: {
     secret: process.env.JWT_SECRET || ""
