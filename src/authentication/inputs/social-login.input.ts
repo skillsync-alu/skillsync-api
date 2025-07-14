@@ -1,5 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
-import { IsBoolean, IsEnum, IsOptional } from "class-validator";
+import { IsEnum, IsOptional } from "class-validator";
 import { SocialLoginType } from "../interfaces/authentication.interface";
 import { UserType } from "../../users/interfaces/user.interface";
 

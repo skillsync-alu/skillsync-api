@@ -9,9 +9,12 @@ import { UserModule } from "./users/user.module";
 import { SharedModule } from "./shared/shared.module";
 import { AuthenticationModule } from "./authentication/authentication.module";
 import { MatchModule } from "./matches/match.module";
+import { StarModule } from "./stars/star.module";
+import { ScheduleModule } from "@nestjs/schedule";
 
 const GraphQLModules = [
   UserModule,
+  StarModule,
   MatchModule,
   SharedModule,
   AuthenticationModule
@@ -31,7 +34,8 @@ const ServerModules = [
     include: GraphQLModules,
     fieldResolverEnhancers: ["guards"],
     context: ({ req, res }) => ({ req, res })
-  })
+  }),
+  ScheduleModule.forRoot()
 ];
 
 @Module({

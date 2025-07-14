@@ -6,6 +6,8 @@ import { UpdateUserInput } from "../inputs/update-user.input";
 import { CurrentToken } from "../../authentication/decorators/current-token.decorator";
 import { CurrentUser } from "../../authentication/decorators/current-user.decorator";
 import { Guard } from "../../authentication/guards/authentication.guard";
+import { FilterInput } from "../../shared/services/pagination/inputs/filter.input";
+import { UsersResponse } from "../responses/user.response";
 
 @Resolver()
 export class UserResolver {
@@ -18,6 +20,16 @@ export class UserResolver {
     username?: string
   ) {
     return await this.userService.getUser(token, username);
+  }
+
+  @UseGuards(Guard)
+  @Query(() => UsersResponse)
+  async getTutors(
+    @CurrentUser() user: User,
+    @Args({ name: "filter", type: () => FilterInput, nullable: false })
+    filter: FilterInput
+  ) {
+    return await this.userService.getTutors(filter, user);
   }
 
   @UseGuards(Guard)

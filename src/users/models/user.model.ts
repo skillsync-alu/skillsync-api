@@ -86,11 +86,31 @@ export class User extends Document {
   @Prop({ type: Boolean, required: true, default: false })
   isDeleted: boolean;
 
+  @Field(() => [String])
+  @Prop({ type: [String], required: true, default: [] })
+  skillsOfferred: string[];
+
+  @Field(() => [String])
+  @Prop({ type: [String], required: true, default: [] })
+  skillsWanted: string[];
+
   @Field(() => Number, { nullable: true })
   matcherCount?: number;
 
   @Field(() => Number, { nullable: true })
   matcheeCount?: number;
+
+  @Field(() => Number, { nullable: true })
+  starrerCount?: number;
+
+  @Field(() => Number, { nullable: true })
+  starredCount?: number;
+
+  @Field(() => Boolean, { nullable: true })
+  isStarred?: boolean;
+
+  @Field(() => Boolean, { nullable: true })
+  isMatched?: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

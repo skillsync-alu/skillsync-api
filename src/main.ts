@@ -5,7 +5,7 @@ import { json, urlencoded } from "express";
 
 const origins = {
   production: ["https://skillsync-alu.web.app"],
-  development: ["https://skillsync-alu.web.app","http://localhost:5173"]
+  development: ["https://skillsync-alu.web.app", "http://localhost:5173"]
 };
 
 async function bootstrap() {

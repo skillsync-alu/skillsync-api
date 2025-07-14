@@ -5,6 +5,7 @@ import { User } from "../../users/models/user.model";
 import { Model, Types } from "mongoose";
 import { MatchStatusType } from "../interfaces/match.interface";
 import { MatchStatus, MatchStatusSchema } from "./match-status.model";
+import { InternalServerErrorException } from "@nestjs/common";
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -57,4 +58,43 @@ export const MatchModel: ModelDefinition = {
   schema: MatchSchema
 };
 
-export type MatchRepository = Model<Match>;
+MatchSchema.statics.getMatcheeCount = async function (matcher: Types.ObjectId) {
+  try {
+    return await this.count({ matcher, isDeleted: false });
+  } catch (error) {
+    throw new InternalServerErrorException(error);
+  }
+};
+
+MatchSchema.statics.getMatcherCount = async function (matchee: Types.ObjectId) {
+  try {
+    return await this.count({ matchee, isDeleted: false });
+  } catch (error) {
+    throw new InternalServerErrorException(error);
+  }
+};
+
+MatchSchema.statics.isMatched = async function (
+  matcher: Types.ObjectId,
+  matchee: Types.ObjectId
+) {
+  try {
+    return Boolean(
+      await this.exists({
+        matcher,
+        matchee,
+        isDeleted: false
+      })
+    );
+  } catch (error) {
+    throw new InternalServerErrorException(error);
+  }
+};
+
+export interface MatchRepository extends Model<Match> {
+  getMatcheeCount(matcher: Types.ObjectId): Promise<number>;
+
+  getMatcherCount(matchee: Types.ObjectId): Promise<number>;
+
+  isMatched(matcher: Types.ObjectId, matchee: Types.ObjectId): Promise<boolean>;
+}

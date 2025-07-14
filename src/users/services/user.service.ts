@@ -14,12 +14,18 @@ import { omit } from "lodash";
 import { EncryptionService } from "../../shared/services/encryption/services/encryption.service";
 import { Types } from "mongoose";
 import { Empty_Token_Error_Message } from "../../authentication/messages/authentication.message";
+import { FilterInput } from "../../shared/services/pagination/inputs/filter.input";
+import { UserType } from "../interfaces/user.interface";
+import { StarService } from "../../stars/services/star.service";
+import { MatchService } from "../../matches/services/match.service";
 
 const keywords = ["firstName", "lastName", "username", "email", "phoneNumber"];
 
 @Injectable()
 export class UserService {
   constructor(
+    private readonly starService: StarService,
+    private readonly matchService: MatchService,
     private readonly paginationService: PaginationService,
     private readonly encryptionService: EncryptionService,
     @InjectModel(User.name) private readonly userRepository: UserRepository
@@ -104,6 +110,7 @@ export class UserService {
         isDeleted: false,
         _id: new Types.ObjectId(payload?.id)
       });
+      // eslint-disable-next-line
     } catch (error) {
       return null;
     }
@@ -159,6 +166,60 @@ export class UserService {
       // await this.mediaService.deleteByFolder(`users/${user.id}`);
 
       return await user.save();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getTutors(filter: FilterInput, user: User) {
+    try {
+      const { take = 10, page = 1, keyword = "" } = filter;
+
+      const query: PaginationQuery<User> = {
+        page,
+        take,
+        isDeleted: false,
+        type: UserType.Tutor,
+        sort: { createdAt: -1 },
+        _id: { $ne: user._id }
+      };
+
+      if (keyword) {
+        query.$or = keywords.map(key => ({
+          [key]: { $regex: new RegExp(keyword.split(" ").join("|"), "i") }
+        }));
+      }
+
+      const tutors = await this.paginationService.paginate(
+        this.userRepository,
+        query
+      );
+
+      tutors.list = await Promise.all(
+        tutors.list.map(async tutor => {
+          tutor.matcheeCount = await this.matchService.getMatcheeCount(
+            tutor._id
+          );
+
+          tutor.starrerCount = await this.starService.getStarrerCount(
+            tutor._id
+          );
+
+          tutor.isMatched = await this.matchService.isMatched(
+            tutor._id,
+            user._id
+          );
+
+          tutor.isStarred = await this.starService.isStarred(
+            user._id,
+            tutor._id
+          );
+
+          return tutor;
+        })
+      );
+
+      return tutors;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
