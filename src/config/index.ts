@@ -24,5 +24,8 @@ export const config = {
   },
   tokenization: {
     secret: process.env.JWT_SECRET || ""
+  },
+  firebase: {
+    privateKey: process.env.FIREBASE_PRIVATE_KEY || ""
   }
 };

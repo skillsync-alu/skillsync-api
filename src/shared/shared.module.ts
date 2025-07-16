@@ -3,10 +3,11 @@ import { EncryptionService } from "./services/encryption/services/encryption.ser
 import { JwtModule } from "@nestjs/jwt";
 import { config } from "../config/index";
 import { PaginationService } from "./services/pagination/services/pagination.service";
+import { MessageService } from "./services/messages/services/message.service";
 
 @Module({
-  exports: [EncryptionService, PaginationService],
-  providers: [Logger, EncryptionService, PaginationService],
+  exports: [EncryptionService, PaginationService, MessageService],
+  providers: [Logger, EncryptionService, PaginationService, MessageService],
   imports: [JwtModule.register({ secret: config.tokenization.secret })]
 })
 export class SharedModule {}

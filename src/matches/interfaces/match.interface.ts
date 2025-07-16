@@ -3,7 +3,10 @@ import { registerEnumType } from "@nestjs/graphql";
 export enum MatchStatusType {
   Draft = "Draft",
   Deleted = "Deleted",
-  Rejected = "Rejected",
+  RejectedByStudent = "RejectedByStudent",
+  RejectedByTutor = "RejectedByTutor",
+  AcceptedByStudent = "AcceptedByStudent",
+  AcceptedByTutor = "AcceptedByTutor",
   Confirmed = "Confirmed"
 }
 

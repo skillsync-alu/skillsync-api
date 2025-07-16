@@ -94,6 +94,9 @@ export class User extends Document {
   @Prop({ type: [String], required: true, default: [] })
   skillsWanted: string[];
 
+  @Field(() => String, { nullable: true })
+  matchId?: string;
+
   @Field(() => Number, { nullable: true })
   matcherCount?: number;
 

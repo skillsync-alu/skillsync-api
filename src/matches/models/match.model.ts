@@ -91,6 +91,14 @@ MatchSchema.statics.isMatched = async function (
   }
 };
 
+MatchSchema.pre("save", async function (next) {
+  if (this.isModified("statuses")) {
+    this.set("status", this.statuses[this.statuses.length - 1].type);
+  }
+
+  next();
+});
+
 export interface MatchRepository extends Model<Match> {
   getMatcheeCount(matcher: Types.ObjectId): Promise<number>;
 

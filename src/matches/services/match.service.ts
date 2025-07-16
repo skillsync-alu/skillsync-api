@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException
+} from "@nestjs/common";
 import { Match, MatchRepository } from "../models/match.model";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { PaginationService } from "../../shared/services/pagination/services/pagination.service";
@@ -16,10 +21,13 @@ import { FilterInput } from "../../shared/services/pagination/inputs/filter.inpu
 import { omit } from "lodash";
 import { paginate } from "../../utilities/paginate";
 import { Star, StarRepository } from "../../stars/models/star.model";
+import { UpdateMatchInput } from "../inputs/update-match.input";
+import { MessageService } from "../../shared/services/messages/services/message.service";
 
 @Injectable()
 export class MatchService {
   constructor(
+    private readonly messageService: MessageService,
     private readonly paginationService: PaginationService,
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Star.name) private readonly starRepository: StarRepository,
@@ -41,7 +49,12 @@ export class MatchService {
     };
   }
 
-  async create(matcher: User, matchee: User, session: ClientSession) {
+  async create(
+    matcher: User,
+    matchee: User,
+    session: ClientSession,
+    isSystem = true
+  ) {
     try {
       const [match] = await this.matchRepository.create(
         [
@@ -55,12 +68,191 @@ export class MatchService {
         { session }
       );
 
-      match.statuses.push(this.addStatus(MatchStatusType.Draft));
+      match.statuses.push(
+        this.addStatus(
+          MatchStatusType.Draft,
+          undefined,
+          !isSystem ? matchee._id : undefined
+        )
+      );
 
       return await match.save({ session });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async confirm(match: Match, session: ClientSession) {
+    try {
+      if (match.isConfirmed) {
+        return;
+      }
+
+      match.isConfirmed = true;
+
+      match.statuses.push(this.addStatus(MatchStatusType.Confirmed));
+
+      await this.messageService.createChatDocument({
+        matchId: match.id,
+        participants: [match.matcher.toString(), match.matchee.toString()]
+      });
+
+      return await match.save({ session });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async createMatch(matcher: Types.ObjectId, matchee: User) {
+    return await inTransaction(this.connection, async session => {
+      try {
+        const tutor = await this.userRepository.findOne({
+          _id: matcher,
+          isDeleted: false,
+          type: UserType.Tutor
+        });
+
+        if (!tutor) {
+          throw new BadRequestException("Tutor not available");
+        }
+
+        const matchCount = await this.matchRepository.count({
+          isDeleted: false,
+          matchee: matchee._id,
+          status: {
+            $in: [
+              MatchStatusType.Draft,
+              MatchStatusType.Confirmed,
+              MatchStatusType.AcceptedByTutor
+            ]
+          }
+        });
+
+        if (matchCount >= 6) {
+          throw new BadRequestException(
+            "You've reached your limit of 6 matches"
+          );
+        }
+
+        const match = await this.create(tutor, matchee, session, false);
+
+        match.statuses.push(
+          this.addStatus(
+            MatchStatusType.AcceptedByStudent,
+            undefined,
+            matchee._id
+          )
+        );
+
+        await match.save({ session });
+
+        await session.commitTransaction();
+
+        return await match.populate(["matcher"]);
+      } catch (error) {
+        await session.abortTransaction();
+
+        throw new InternalServerErrorException(error);
+      }
+    });
+  }
+
+  async updateMatchAsStudent(input: UpdateMatchInput, user: User) {
+    return await inTransaction(this.connection, async session => {
+      try {
+        const match = await this.matchRepository.findOne({
+          _id: input.id,
+          isDeleted: false,
+          matchee: user._id
+        });
+
+        if (!match) {
+          throw new UnauthorizedException();
+        }
+
+        if (
+          ![
+            MatchStatusType.AcceptedByStudent,
+            MatchStatusType.RejectedByStudent
+          ].includes(input.matchStatus)
+        ) {
+          throw new BadRequestException("Invalid Match Update status");
+        }
+
+        match.statuses.push(
+          this.addStatus(input.matchStatus, input.details, user._id)
+        );
+
+        if (input.matchStatus === MatchStatusType.AcceptedByStudent) {
+          if (
+            match.statuses.some(
+              status => status.type === MatchStatusType.AcceptedByTutor
+            )
+          ) {
+            await this.confirm(match, session);
+          }
+        }
+
+        await match.save({ session });
+
+        await session.commitTransaction();
+
+        return match;
+      } catch (error) {
+        await session.abortTransaction();
+
+        throw new InternalServerErrorException(error);
+      }
+    });
+  }
+
+  async updateMatchAsTutor(input: UpdateMatchInput, user: User) {
+    return await inTransaction(this.connection, async session => {
+      try {
+        const match = await this.matchRepository.findOne({
+          _id: input.id,
+          isDeleted: false,
+          matcher: user._id
+        });
+
+        if (!match) {
+          throw new UnauthorizedException();
+        }
+
+        if (
+          ![
+            MatchStatusType.AcceptedByTutor,
+            MatchStatusType.RejectedByTutor
+          ].includes(input.matchStatus)
+        ) {
+          throw new BadRequestException("Invalid Match Update status");
+        }
+
+        match.statuses.push(
+          this.addStatus(input.matchStatus, input.details, user._id)
+        );
+
+        if (input.matchStatus === MatchStatusType.AcceptedByTutor) {
+          if (
+            match.statuses.some(
+              status => status.type === MatchStatusType.AcceptedByStudent
+            )
+          ) {
+            await this.confirm(match, session);
+          }
+        }
+
+        await match.save({ session });
+
+        await session.commitTransaction();
+
+        return match;
+      } catch (error) {
+        await session.abortTransaction();
+
+        throw new InternalServerErrorException(error);
+      }
+    });
   }
 
   async getMatcheeCount(matcher: Types.ObjectId) {
@@ -93,16 +285,20 @@ export class MatchService {
     }
   }
 
-  async getMatches(filter: MatchFilterInput) {
+  async getMatches(filter: MatchFilterInput, user: User) {
     try {
-      const query: PaginationQuery<Match> = { filter };
+      const query: PaginationQuery<Match> = {
+        filter,
+        status: filter.status || MatchStatusType.Confirmed,
+        options: {
+          populate: ["matcher", "matchee"]
+        }
+      };
 
-      if (filter.matchee) {
-        query.matchee = filter.matchee;
-      }
-
-      if (filter.matcher) {
-        query.matcher = filter.matcher;
+      if (user.type === UserType.Tutor) {
+        query.matcher = user._id;
+      } else {
+        query.matchee = user._id;
       }
 
       return await this.paginationService.paginate(this.matchRepository, query);
@@ -155,10 +351,19 @@ export class MatchService {
       }
 
       const matchers = await this.matchRepository
-        .find({ matchee: matchee._id }, "matcher", {
-          limit: pagination.take,
-          skip: (pagination.page - 1) * pagination.take
-        })
+        .find(
+          {
+            matchee: matchee._id,
+            status: {
+              $in: [MatchStatusType.Draft, MatchStatusType.AcceptedByTutor]
+            }
+          },
+          "matcher",
+          {
+            limit: pagination.take,
+            skip: (pagination.page - 1) * pagination.take
+          }
+        )
         .populate({ path: "matcher" });
 
       const totalCount = await this.getMatcherCount(matchee._id);
@@ -169,8 +374,10 @@ export class MatchService {
         totalCount,
         totalPages,
         list: await Promise.all(
-          matchers.map(async ({ matcher }) => {
-            matcher.matcheeCount = await this.getMatcheeCount(matchee._id);
+          matchers.map(async ({ matcher, id }) => {
+            matcher.matchId = id;
+
+            matcher.matcheeCount = await this.getMatcheeCount(matcher._id);
 
             matcher.starrerCount = await this.starRepository.getStarrerCount(
               matcher._id

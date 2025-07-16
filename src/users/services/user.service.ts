@@ -18,6 +18,7 @@ import { FilterInput } from "../../shared/services/pagination/inputs/filter.inpu
 import { UserType } from "../interfaces/user.interface";
 import { StarService } from "../../stars/services/star.service";
 import { MatchService } from "../../matches/services/match.service";
+import { MessageService } from "../../shared/services/messages/services/message.service";
 
 const keywords = ["firstName", "lastName", "username", "email", "phoneNumber"];
 
@@ -26,6 +27,7 @@ export class UserService {
   constructor(
     private readonly starService: StarService,
     private readonly matchService: MatchService,
+    private readonly messageService: MessageService,
     private readonly paginationService: PaginationService,
     private readonly encryptionService: EncryptionService,
     @InjectModel(User.name) private readonly userRepository: UserRepository
@@ -88,6 +90,20 @@ export class UserService {
 
       if (!user) {
         throw new UnauthorizedException(Empty_Token_Error_Message);
+      }
+
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getStatistics(user: User) {
+    try {
+      if (user.type === UserType.Tutor) {
+        user.matcheeCount = await this.matchService.getMatcheeCount(user._id);
+      } else {
+        user.matcherCount = await this.matchService.getMatcherCount(user._id);
       }
 
       return user;
@@ -220,6 +236,14 @@ export class UserService {
       );
 
       return tutors;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getFirebaseCustomToken(user: User): Promise<string> {
+    try {
+      return await this.messageService.createCustomToken(user.id);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

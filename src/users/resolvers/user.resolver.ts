@@ -23,6 +23,12 @@ export class UserResolver {
   }
 
   @UseGuards(Guard)
+  @Query(() => User)
+  async getStatistics(@CurrentUser() user: User) {
+    return await this.userService.getStatistics(user);
+  }
+
+  @UseGuards(Guard)
   @Query(() => UsersResponse)
   async getTutors(
     @CurrentUser() user: User,
@@ -40,5 +46,11 @@ export class UserResolver {
     input: UpdateUserInput
   ) {
     return await this.userService.updateUser(user, input);
+  }
+
+  @UseGuards(Guard)
+  @Mutation(() => String)
+  async getFirebaseCustomToken(@CurrentUser() user: User) {
+    return this.userService.getFirebaseCustomToken(user);
   }
 }
