@@ -38,6 +38,7 @@ export class MatchResolver {
     return await this.matchService.getMatches(filter, user);
   }
 
+  @UseGuards(Guard, Roles([UserType.User]))
   @Query(() => UsersResponse)
   async getMatchers(
     @CurrentUser() matchee: User,
@@ -45,6 +46,16 @@ export class MatchResolver {
     filter: FilterInput
   ) {
     return await this.matchService.getMatchers(filter, matchee);
+  }
+
+  @UseGuards(Guard, Roles([UserType.Tutor]))
+  @Query(() => UsersResponse)
+  async getMatchees(
+    @CurrentUser() matcher: User,
+    @Args({ name: "filter", type: () => FilterInput, nullable: false })
+    filter: FilterInput
+  ) {
+    return await this.matchService.getMatchees(filter, matcher);
   }
 
   @UseGuards(Guard, Roles([UserType.User]))
