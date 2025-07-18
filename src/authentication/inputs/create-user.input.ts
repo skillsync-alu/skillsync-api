@@ -1,11 +1,5 @@
 import { InputType, Field } from "@nestjs/graphql";
-import {
-  IsAlphanumeric,
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsOptional
-} from "class-validator";
+import { IsAlphanumeric, IsEmail, IsEnum, IsOptional } from "class-validator";
 import { UserType } from "../../users/interfaces/user.interface";
 import { CountryCodeType } from "../../shared/constants/shared.constant";
 import { CountryCode } from "libphonenumber-js";
@@ -18,7 +12,7 @@ export class CreateUserInput {
   @Field()
   lastName: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsAlphanumeric()
   username?: string;
@@ -29,10 +23,6 @@ export class CreateUserInput {
 
   @Field()
   password: string;
-
-  @Field(() => Boolean, { defaultValue: true })
-  @IsBoolean()
-  shouldSubscribe: boolean;
 
   @Field({ nullable: true })
   @IsOptional()

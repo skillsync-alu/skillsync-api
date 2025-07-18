@@ -7,44 +7,48 @@ import { UseGuards } from "@nestjs/common";
 import { Guard } from "../guards/authentication.guard";
 import { CurrentUser } from "../decorators/current-user.decorator";
 import { SocialLoginInput } from "../inputs/social-login.input";
+import { CreateUserInput } from "../inputs/create-user.input";
+import { LoginUserInput } from "../inputs/login-user.input";
+import { ForgotPasswordInput } from "../inputs/forgot-password.input";
+import { ResetPasswordInput } from "../inputs/reset-password.input";
 
 @Resolver()
 export class AuthenticationResolver {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
-  // @Mutation(() => LoginResponse)
-  // async createUser(
-  //   @Context() context: any,
-  //   @Args({ name: "input", type: () => CreateUserInput })
-  //   input: CreateUserInput
-  // ) {
-  //   return await this.authenticationService.createUser(input, context);
-  // }
+  @Mutation(() => LoginResponse)
+  async createUser(
+    @Context() context: any,
+    @Args({ name: "input", type: () => CreateUserInput })
+    input: CreateUserInput
+  ) {
+    return await this.authenticationService.createUser(input, context);
+  }
 
-  // @Mutation(() => LoginResponse)
-  // async loginUser(
-  //   @Args({ name: "input", type: () => LoginUserInput })
-  //   input: LoginUserInput
-  // ) {
-  //   return await this.authenticationService.loginUser(input);
-  // }
+  @Mutation(() => LoginResponse)
+  async loginUser(
+    @Args({ name: "input", type: () => LoginUserInput })
+    input: LoginUserInput
+  ) {
+    return await this.authenticationService.loginUser(input);
+  }
 
-  // @Mutation(() => AuthResponse)
-  // async forgotPassword(
-  //   @Args({ name: "input", type: () => ForgotPasswordInput })
-  //   input: ForgotPasswordInput,
-  //   @Context() context: any
-  // ) {
-  //   return await this.authenticationService.forgotPassword(input, context);
-  // }
+  @Mutation(() => AuthResponse)
+  async forgotPassword(
+    @Args({ name: "input", type: () => ForgotPasswordInput })
+    input: ForgotPasswordInput,
+    @Context() context: any
+  ) {
+    return await this.authenticationService.forgotPassword(input, context);
+  }
 
-  // @Mutation(() => AuthResponse)
-  // async resetPassword(
-  //   @Args({ name: "input", type: () => ResetPasswordInput })
-  //   input: ResetPasswordInput
-  // ) {
-  //   return await this.authenticationService.resetPassword(input);
-  // }
+  @Mutation(() => AuthResponse)
+  async resetPassword(
+    @Args({ name: "input", type: () => ResetPasswordInput })
+    input: ResetPasswordInput
+  ) {
+    return await this.authenticationService.resetPassword(input);
+  }
 
   // @UseGuards(Guard)
   // @Mutation(() => AuthResponse)
