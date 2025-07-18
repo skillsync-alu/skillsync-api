@@ -16,17 +16,15 @@ describe('MailService', () => {
     expect(service).toBeDefined();
   });
 
-  // Comment out the sendMail test for now
-  // it('should send an email', async () => {
-  //   // Replace with real emails for actual test
-  //   const result = await service.sendMail({
-  //     to: 'difepeters@gmail.com',
-  //     subject: 'Test Email',
-  //     htmlContent: '<h1>Hello from Skillsync!</h1>',
-  //     senderName: 'EbiTech',
-  //     senderEmail: 'difebi14@gmail.com',
-  //   });
-  //   expect(result).toBeDefined();
-  //   // Optionally, check result.messageId or status
-  // });
+  it('should send an email', async () => {
+    const result = await service.sendMail({
+      to: 'difepeters@gmail.com',
+      subject: 'Test Email',
+      htmlContent: '<h1>Hello from Skillsync!</h1>',
+      senderName: 'EbiTech',
+      senderEmail: 'difebi14@gmail.com',
+    });
+    expect(result).toBeDefined();
+    // Optionally, check result.messageId or status
+  });
 }); 
