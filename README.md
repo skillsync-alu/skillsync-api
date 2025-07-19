@@ -1,109 +1,115 @@
 SkillSync API
 Overview
-SkillSync API is the backend for a platform designed to facilitate skill-based collaboration through match-making and real-time interactions. It provides endpoints for user authentication, star/match functionality, and a matchmaking algorithm. Built with NestJS and TypeScript, the API ensures a scalable and maintainable architecture with robust code quality enforced by ESLint and Prettier.
+
+SkillSync API is the backend powering a platform for skill-based collaboration.
+Facilitates authentication, match-making, and real-time interactions.
+Built with NestJS and TypeScript for scalability and maintainability.
+Code quality ensured with ESLint and Prettier.
+
 Features
 
-User Authentication: Supports traditional authentication flows for secure user registration and login.
-Match-Making System: Implements star, match, and matchmaking algorithm flows to connect users based on skills or preferences.
-Real-Time Messaging: Enables real-time communication between matched users.
-Scalable Architecture: Designed for efficient data handling and extensibility using NestJS.
+User Authentication
+Manages traditional login and registration flows.
 
-Technologies Used
 
-NestJS: Framework for building scalable server-side applications.
-TypeScript: For type-safe JavaScript development.
-ESLint & Prettier: For consistent code quality and formatting.
-MongoDB/PostgreSQL: For storing user and match data (update with actual database used).
+Match-Making System
+Implements star, match, and matchmaking algorithms.
+
+
+Real-Time Support
+Provides backend logic for real-time messaging.
+
+
 
 Getting Started
 Prerequisites
 
 Node.js: Version >= 16.x
-Yarn: Package manager for dependency installation
-MongoDB >= 4.x or PostgreSQL >= 13: Ensure the database is installed and running
-A code editor like Visual Studio Code
+Yarn: Package manager for dependencies
+MongoDB or PostgreSQL: Database (version >= 4.x or 13, respectively)
+A code editor (e.g., Visual Studio Code)
 
 Installation
 
-Clone the Repository:
+Clone the Repository
 git clone https://github.com/skillsync-alu/skillsync-api.git
 cd skillsync-api
 
 
-Install Dependencies:
+Install Dependencies
 yarn install
 
 
-Set Up Environment Variables: Create a .env file in the root directory and add the following:
-PORT=[Specific Port, e.g., 3000]
-DATABASE_URL=[Your Database Connection String]
-JWT_SECRET=[Your JWT Secret Key]
-[Other Variables, e.g., REDIS_URL, WEBSOCKET_URL]
+Set Up Environment Variables
 
-Refer to .env.example (if available) for a full list of required variables.
+Create a .env file with:PORT=[e.g., 3000]
+DATABASE_URL=[Your database connection string]
+JWT_SECRET=[Your JWT secret key]
 
-Run the Application:
+
+Refer to .env.example for additional variables.
+
+
+Run the Application
 yarn start
 
-The API will be available at http://localhost:[Specific Port, e.g., 3000].
+
+Access at http://localhost:[PORT, e.g., 3000].
+
 
 
 Development
-To run the API in development mode with hot reloading:
-yarn start:dev
+
+Run in development mode with hot reloading:yarn start:dev
+
+
 
 Testing
-Run unit and integration tests (if available):
-yarn test
 
-API Endpoints
-Below are key endpoints based on recent features (update with actual endpoints from your codebase):
+Execute tests:yarn test
 
 
 
-Method
-Endpoint
-Description
-
-
-
-POST
-/auth/register
-Register a new user
-
-
-POST
-/auth/login
-Authenticate a user
-
-
-POST
-/match/make
-Initiate a match-making process
-
-
-GET
-/match/stars
-Retrieve user stars or matches
-
-
-For detailed API documentation, refer to [Postman Documentation Link or /docs endpoint, if applicable].
 Project Structure
-skillsync-api/
-├── src/
-│   ├── [controllers/]       # Request handlers for API endpoints
-│   ├── [models/]           # Database schemas/models
-│   ├── [routes/]           # API route definitions
-│   ├── [services/]         # Business logic for auth and match-making
-│   ├── [middleware/]       # Authentication and other middleware
-│   └── main.ts             # Main application entry point
-├── tests/                  # Test files
-├── .eslintrc.js            # ESLint configuration
-├── .prettierrc             # Prettier configuration
-├── .env.example            # Example environment variables
-├── .gitignore              # Files/folders to ignore in git
-├── nest-cli.json           # NestJS CLI configuration
-├── package.json            # Project dependencies and scripts
-├── tsconfig.json           # TypeScript configuration
-└── yarn.lock               # Yarn dependency lock file
+Structure skillsync-api/├── src/ # 1. Source code directory│   ├── [controllers/] # 2. Request handlers for API endpoints│   ├── [models/] # 3. Database schemas and models│   ├── [routes/] # 4. API route definitions│   ├── [services/] # 5. Business logic for authentication and match-making│   ├── [middleware/] # 6. Authentication and other middleware│   └── main.ts # 7. Main application entry point├── tests/ # 8. Test files├── .eslintrc.js # 9. ESLint configuration├── .prettierrc # 10. Prettier configuration├── .env.example # 11. Example environment variables├── .gitignore # 12. Files and folders to ignore in git├── nest-cli.json # 13. NestJS CLI configuration├── package.json # 14. Project dependencies and scripts├── tsconfig.json # 15. TypeScript configuration└── yarn.lock # 16. Yarn dependency lock file  
+Core Workflows
 
+User Authentication
+Handles registration and login processes.
+
+
+Match-Making
+Executes star, match, and matchmaking logic.
+
+
+Real-Time Messaging
+Supports backend operations for real-time communication.
+
+Tech Stack
+Framework: NestJS
+
+Language: TypeScript
+
+Linting: ESLint
+
+Formatting: Prettier
+
+Frontend: SkillSync Web
+
+    Frontend: React
+
+    Build Tool: Vite
+
+    State Management: Recoil
+
+    Routing: TanStack Router
+
+    API Integration: Apollo Client
+
+    Authentication & Messaging: Firebase
+
+    Styling: Tailwind CSS
+
+
+License
+This project is licensed under the MIT License. See the LICENSE file for details.
