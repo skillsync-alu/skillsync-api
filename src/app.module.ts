@@ -18,7 +18,8 @@ const GraphQLModules = [
   StarModule,
   MatchModule,
   SharedModule,
-  AuthenticationModule
+  AuthenticationModule,
+  OtpModule
 ];
 
 const ServerModules = [

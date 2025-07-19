@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MailService } from '../shared/services/email/services/mail.service';
+import { config } from '../config';
 
 @Injectable()
 export class OtpService {
@@ -12,14 +13,26 @@ export class OtpService {
     const code = this.generateOtpCode();
     const expiresAt = Date.now() + this.OTP_EXPIRY_MS;
     this.otpStore.set(identifier, { code, expiresAt });
-    await this.mailService.sendMail({
-      to: identifier,
-      subject: 'Your OTP Code',
-      htmlContent: `<p>Your OTP code is: <b>${code}</b></p>`,
-      senderName: 'SkillSync',
-      senderEmail: 'no-reply@skillsync.com',
-    });
-    return true;
+    
+    if (config.isDevelopment) {
+      // In development, just log the OTP instead of sending email
+      console.log(`🔐 OTP for ${identifier}: ${code}`);
+      return true;
+    }
+    
+    try {
+      await this.mailService.sendMail({
+        to: identifier,
+        subject: 'Your OTP Code',
+        htmlContent: `<p>Your OTP code is: <b>${code}</b></p>`,
+        senderName: 'SkillSync',
+        senderEmail: 'no-reply@skillsync.com',
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to send OTP email:', error.message);
+      return false;
+    }
   }
 
   async verifyOtp(identifier: string, code: string): Promise<boolean> {
