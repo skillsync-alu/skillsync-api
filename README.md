@@ -1,98 +1,109 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+SkillSync API
+Overview
+SkillSync API is the backend for a platform designed to facilitate skill-based collaboration through match-making and real-time interactions. It provides endpoints for user authentication, star/match functionality, and a matchmaking algorithm. Built with NestJS and TypeScript, the API ensures a scalable and maintainable architecture with robust code quality enforced by ESLint and Prettier.
+Features
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+User Authentication: Supports traditional authentication flows for secure user registration and login.
+Match-Making System: Implements star, match, and matchmaking algorithm flows to connect users based on skills or preferences.
+Real-Time Messaging: Enables real-time communication between matched users.
+Scalable Architecture: Designed for efficient data handling and extensibility using NestJS.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Technologies Used
 
-## Description
+NestJS: Framework for building scalable server-side applications.
+TypeScript: For type-safe JavaScript development.
+ESLint & Prettier: For consistent code quality and formatting.
+MongoDB/PostgreSQL: For storing user and match data (update with actual database used).
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Getting Started
+Prerequisites
 
-## Project setup
+Node.js: Version >= 16.x
+Yarn: Package manager for dependency installation
+MongoDB >= 4.x or PostgreSQL >= 13: Ensure the database is installed and running
+A code editor like Visual Studio Code
 
-```bash
-$ yarn install
-```
+Installation
 
-## Compile and run the project
+Clone the Repository:
+git clone https://github.com/skillsync-alu/skillsync-api.git
+cd skillsync-api
 
-```bash
-# development
-$ yarn run start
 
-# watch mode
-$ yarn run start:dev
+Install Dependencies:
+yarn install
 
-# production mode
-$ yarn run start:prod
-```
 
-## Run tests
+Set Up Environment Variables: Create a .env file in the root directory and add the following:
+PORT=[Specific Port, e.g., 3000]
+DATABASE_URL=[Your Database Connection String]
+JWT_SECRET=[Your JWT Secret Key]
+[Other Variables, e.g., REDIS_URL, WEBSOCKET_URL]
 
-```bash
-# unit tests
-$ yarn run test
+Refer to .env.example (if available) for a full list of required variables.
 
-# e2e tests
-$ yarn run test:e2e
+Run the Application:
+yarn start
 
-# test coverage
-$ yarn run test:cov
-```
+The API will be available at http://localhost:[Specific Port, e.g., 3000].
 
-## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Development
+To run the API in development mode with hot reloading:
+yarn start:dev
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Testing
+Run unit and integration tests (if available):
+yarn test
 
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
+API Endpoints
+Below are key endpoints based on recent features (update with actual endpoints from your codebase):
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## Resources
 
-Check out a few resources that may come in handy when working with NestJS:
+Method
+Endpoint
+Description
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+POST
+/auth/register
+Register a new user
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+POST
+/auth/login
+Authenticate a user
 
-## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+POST
+/match/make
+Initiate a match-making process
+
+
+GET
+/match/stars
+Retrieve user stars or matches
+
+
+For detailed API documentation, refer to [Postman Documentation Link or /docs endpoint, if applicable].
+Project Structure
+skillsync-api/
+├── src/
+│   ├── [controllers/]       # Request handlers for API endpoints
+│   ├── [models/]           # Database schemas/models
+│   ├── [routes/]           # API route definitions
+│   ├── [services/]         # Business logic for auth and match-making
+│   ├── [middleware/]       # Authentication and other middleware
+│   └── main.ts             # Main application entry point
+├── tests/                  # Test files
+├── .eslintrc.js            # ESLint configuration
+├── .prettierrc             # Prettier configuration
+├── .env.example            # Example environment variables
+├── .gitignore              # Files/folders to ignore in git
+├── nest-cli.json           # NestJS CLI configuration
+├── package.json            # Project dependencies and scripts
+├── tsconfig.json           # TypeScript configuration
+└── yarn.lock               # Yarn dependency lock file
+
