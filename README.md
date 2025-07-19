@@ -21,6 +21,23 @@ Provides backend logic for real-time messaging.
 
 
 
+Tech Stack
+
+Framework: NestJS
+Language: TypeScript
+Linting: ESLint
+Formatting: Prettier
+Frontend: SkillSync Web
+Frontend: React
+Build Tool: Vite
+State Management: Recoil
+Routing: TanStack Router
+API Integration: Apollo Client
+Authentication & Messaging: Firebase
+Styling: Tailwind CSS
+
+
+
 Getting Started
 Prerequisites
 
@@ -85,30 +102,6 @@ Executes star, match, and matchmaking logic.
 Real-Time Messaging
 Supports backend operations for real-time communication.
 
-Tech Stack
-Framework: NestJS
-
-Language: TypeScript
-
-Linting: ESLint
-
-Formatting: Prettier
-
-Frontend: SkillSync Web
-
-    Frontend: React
-
-    Build Tool: Vite
-
-    State Management: Recoil
-
-    Routing: TanStack Router
-
-    API Integration: Apollo Client
-
-    Authentication & Messaging: Firebase
-
-    Styling: Tailwind CSS
 
 
 License
