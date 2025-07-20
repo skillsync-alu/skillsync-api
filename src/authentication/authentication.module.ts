@@ -5,6 +5,7 @@ import { SharedModule } from "../shared/shared.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { UserModel } from "../users/models/user.model";
 import { AuthenticationStrategy } from "./strategies/authentication.strategy";
+import { OtpModule } from "../otp/otp.module";
 
 @Module({
   providers: [
@@ -13,6 +14,6 @@ import { AuthenticationStrategy } from "./strategies/authentication.strategy";
     AuthenticationResolver,
     AuthenticationStrategy
   ],
-  imports: [SharedModule, MongooseModule.forFeature([UserModel])]
+  imports: [OtpModule, SharedModule, MongooseModule.forFeature([UserModel])]
 })
 export class AuthenticationModule {}
