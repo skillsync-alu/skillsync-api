@@ -19,7 +19,7 @@ export class OtpService {
         subject: 'Your OTP Code',
         htmlContent: `<p>Your OTP code is: <b>${code}</b></p>`,
         senderName: 'SkillSync',
-        senderEmail: 'no-reply@skillsync.com',
+        senderEmail: 'difebi14@gmail.com', // Use your verified email
       });
       return true;
     } catch (error) {
