@@ -11,13 +11,15 @@ import { AuthenticationModule } from "./authentication/authentication.module";
 import { MatchModule } from "./matches/match.module";
 import { StarModule } from "./stars/star.module";
 import { ScheduleModule } from "@nestjs/schedule";
+import { OtpModule } from './otp/otp.module';
 
 const GraphQLModules = [
   UserModule,
   StarModule,
   MatchModule,
   SharedModule,
-  AuthenticationModule
+  AuthenticationModule,
+  OtpModule
 ];
 
 const ServerModules = [
@@ -41,6 +43,6 @@ const ServerModules = [
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [...ServerModules, ...GraphQLModules]
+  imports: [...ServerModules, ...GraphQLModules, OtpModule]
 })
 export class AppModule {}

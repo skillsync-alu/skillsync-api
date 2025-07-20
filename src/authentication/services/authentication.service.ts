@@ -16,6 +16,7 @@ import { Connection, Types } from "mongoose";
 import { isAdmin, isAdminType } from "../../users/constants/user.constant";
 import { LoginUserInput } from "../inputs/login-user.input";
 import {
+  Invalid_OTP_Method_Message,
   Password_Incorrect_Message,
   User_Notfound_Message
 } from "../messages/authentication.message";
@@ -23,7 +24,6 @@ import { SocialLoginInput } from "../inputs/social-login.input";
 import { SocialLoginType } from "../interfaces/authentication.interface";
 import { Auth, google } from "googleapis";
 import { AuthResponse } from "../responses/authentication.response";
-// import { WalletService } from "../../wallets/services/wallet.service";
 import { Currency } from "../../shared/interfaces/shared.interface";
 import { getClientIp } from "@supercharge/request-ip";
 import { currencyCountries } from "../../shared/constants/shared.constant";
@@ -31,10 +31,10 @@ import { lookup } from "geoip-country";
 import { stringify } from "../../utilities/stringify-json";
 import { CountryCode } from "libphonenumber-js";
 import { ForgotPasswordInput } from "../inputs/forgot-password.input";
-import { parse } from "platform";
 import { ResetPasswordInput } from "../inputs/reset-password.input";
 import { ChangePasswordInput } from "../inputs/change-password.input";
 import { minLength } from "class-validator";
+import { OtpService } from "../../otp/otp.service";
 
 @Injectable()
 export class AuthenticationService {
@@ -42,7 +42,7 @@ export class AuthenticationService {
 
   constructor(
     private readonly loggerService: Logger,
-    // private readonly walletService: WalletService,
+    private readonly otpService: OtpService,
     private readonly encryptionService: EncryptionService,
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(User.name) private readonly userRepository: UserRepository
@@ -320,7 +320,7 @@ export class AuthenticationService {
     }
   }
 
-  async forgotPassword(input: ForgotPasswordInput, context: any) {
+  async forgotPassword(input: ForgotPasswordInput) {
     try {
       const { identifier } = input;
 
@@ -333,23 +333,9 @@ export class AuthenticationService {
         );
       }
 
-      const device = parse(context?.req?.headers?.["user-agent"]);
-
-      const agent = `${device.name || ""} ${device.os.version || ""} device`;
-
-      // const code = await this.otpService.generate(identifier);
-
-      const params = { code: "", agent, name: user.firstName };
-
-      //   await this.mailService.send({
-      //     params,
-      //     to: user.email,
-      //     template: MailTemplate.ForgotPassword,
-      //     subject: `Hello ${user.firstName}, you requested for a Password Reset`
-      //   });
-
-      // #TODO: change this!
-      return new AuthResponse(!!params);
+      return new AuthResponse(
+        await this.otpService.generateAndSendOtp(identifier)
+      );
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -357,10 +343,10 @@ export class AuthenticationService {
 
   async resetPassword(input: ResetPasswordInput) {
     try {
-      // const identifier = await this.otpService.verifyOtp(input.code);
-
-      const identifier = "";
-
+      const identifier = await this.otpService.verifyOtp(input.code);
+      if(!identifier){
+        throw new BadRequestException(Invalid_OTP_Method_Message)
+      }
       const user = await this.userRepository.findByIdentity(identifier);
 
       if (!user) {

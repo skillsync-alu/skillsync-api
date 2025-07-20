@@ -36,10 +36,9 @@ export class AuthenticationResolver {
   @Mutation(() => AuthResponse)
   async forgotPassword(
     @Args({ name: "input", type: () => ForgotPasswordInput })
-    input: ForgotPasswordInput,
-    @Context() context: any
+    input: ForgotPasswordInput
   ) {
-    return await this.authenticationService.forgotPassword(input, context);
+    return await this.authenticationService.forgotPassword(input);
   }
 
   @Mutation(() => AuthResponse)
