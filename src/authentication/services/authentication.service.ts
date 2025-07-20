@@ -12,7 +12,7 @@ import { User, UserRepository } from "../../users/models/user.model";
 import { CreateUserInput } from "../inputs/create-user.input";
 import { inTransaction } from "../../utilities/transaction";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
-import { Connection } from "mongoose";
+import { Connection, Types } from "mongoose";
 import { isAdmin, isAdminType } from "../../users/constants/user.constant";
 import { LoginUserInput } from "../inputs/login-user.input";
 import {
@@ -30,6 +30,11 @@ import { currencyCountries } from "../../shared/constants/shared.constant";
 import { lookup } from "geoip-country";
 import { stringify } from "../../utilities/stringify-json";
 import { CountryCode } from "libphonenumber-js";
+import { ForgotPasswordInput } from "../inputs/forgot-password.input";
+import { parse } from "platform";
+import { ResetPasswordInput } from "../inputs/reset-password.input";
+import { ChangePasswordInput } from "../inputs/change-password.input";
+import { minLength } from "class-validator";
 
 @Injectable()
 export class AuthenticationService {
@@ -315,85 +320,87 @@ export class AuthenticationService {
     }
   }
 
-  // async forgotPassword(input: ForgotPasswordInput, context: any) {
-  //   try {
-  //     const { identifier } = input;
+  async forgotPassword(input: ForgotPasswordInput, context: any) {
+    try {
+      const { identifier } = input;
 
-  //     const user = await this.userRepository.findByIdentity(identifier);
+      const user = await this.userRepository.findByIdentity(identifier);
 
-  //     if (!user) {
-  //       return new AuthResponse(
-  //         true,
-  //         "We have sent a mail to this user contingent that this user exists"
-  //       );
-  //     }
+      if (!user) {
+        return new AuthResponse(
+          true,
+          "We have sent a mail to this user contingent that this user exists"
+        );
+      }
 
-  //     const device = parse(context?.req?.headers?.["user-agent"]);
+      const device = parse(context?.req?.headers?.["user-agent"]);
 
-  //     const agent = `${device.name || ""} ${device.os.version || ""} device`;
+      const agent = `${device.name || ""} ${device.os.version || ""} device`;
 
-  //     const code = await this.otpService.generate(identifier);
+      // const code = await this.otpService.generate(identifier);
 
-  //     const params = { code, agent, name: user.firstName };
+      const params = { code: "", agent, name: user.firstName };
 
-  //     //   await this.mailService.send({
-  //     //     params,
-  //     //     to: user.email,
-  //     //     template: MailTemplate.ForgotPassword,
-  //     //     subject: `Hello ${user.firstName}, you requested for a Password Reset`
-  //     //   });
+      //   await this.mailService.send({
+      //     params,
+      //     to: user.email,
+      //     template: MailTemplate.ForgotPassword,
+      //     subject: `Hello ${user.firstName}, you requested for a Password Reset`
+      //   });
 
-  //     // #TODO: change this!
-  //     return new AuthResponse(!!params);
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error);
-  //   }
-  // }
+      // #TODO: change this!
+      return new AuthResponse(!!params);
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 
-  // async resetPassword(input: ResetPasswordInput) {
-  //   try {
-  //     const identifier = await this.otpService.verifyOtp(input.code);
+  async resetPassword(input: ResetPasswordInput) {
+    try {
+      // const identifier = await this.otpService.verifyOtp(input.code);
 
-  //     const user = await this.userRepository.findByIdentity(identifier);
+      const identifier = "";
 
-  //     if (!user) {
-  //       throw new NotFoundException(User_Notfound_Message);
-  //     }
+      const user = await this.userRepository.findByIdentity(identifier);
 
-  //     user.password = input.password;
+      if (!user) {
+        throw new NotFoundException(User_Notfound_Message);
+      }
 
-  //     return new AuthResponse(Boolean(await user.save()));
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error);
-  //   }
-  // }
+      user.password = input.password;
 
-  // async changePassword(input: ChangePasswordInput, userId: Types.ObjectId) {
-  //   try {
-  //     const user = await this.userRepository.findById(userId, "+password");
+      return new AuthResponse(Boolean(await user.save()));
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 
-  //     const isPasswordCorrect = await this.encryptionService.compare(
-  //       input.oldPassword,
-  //       user.password
-  //     );
+  async changePassword(input: ChangePasswordInput, userId: Types.ObjectId) {
+    try {
+      const user = await this.userRepository.findById(userId, "+password");
 
-  //     if (!isPasswordCorrect) {
-  //       throw new UnauthorizedException(Password_Incorrect_Message);
-  //     }
+      const isPasswordCorrect = await this.encryptionService.compare(
+        input.oldPassword,
+        user.password
+      );
 
-  //     if (!minLength(input.newPassword, 8)) {
-  //       throw new BadRequestException(
-  //         "Please ensure that your password is at least 8 characters long"
-  //       );
-  //     }
+      if (!isPasswordCorrect) {
+        throw new UnauthorizedException(Password_Incorrect_Message);
+      }
 
-  //     user.password = input.newPassword;
+      if (!minLength(input.newPassword, 8)) {
+        throw new BadRequestException(
+          "Please ensure that your password is at least 8 characters long"
+        );
+      }
 
-  //     return new AuthResponse(Boolean(await user.save()));
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error);
-  //   }
-  // }
+      user.password = input.newPassword;
+
+      return new AuthResponse(Boolean(await user.save()));
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 
   async checkUsername(username: string, user: User) {
     try {

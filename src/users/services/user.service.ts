@@ -102,6 +102,8 @@ export class UserService {
     try {
       if (user.type === UserType.Tutor) {
         user.matcheeCount = await this.matchService.getMatcheeCount(user._id);
+
+        user.starrerCount = await this.starService.getStarrerCount(user._id);
       } else {
         user.matcherCount = await this.matchService.getMatcherCount(user._id);
       }

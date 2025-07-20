@@ -311,6 +311,13 @@ export class MatchService {
     try {
       const pagination = new FilterInput(filter?.take, filter?.page);
 
+      const query = {
+        matchee: matchee._id,
+        status: {
+          $in: [MatchStatusType.Draft, MatchStatusType.AcceptedByTutor]
+        }
+      };
+
       if (filter?.keyword) {
         const keywords = [
           "matcher.firstName",
@@ -351,22 +358,13 @@ export class MatchService {
       }
 
       const matchers = await this.matchRepository
-        .find(
-          {
-            matchee: matchee._id,
-            status: {
-              $in: [MatchStatusType.Draft, MatchStatusType.AcceptedByTutor]
-            }
-          },
-          "matcher",
-          {
-            limit: pagination.take,
-            skip: (pagination.page - 1) * pagination.take
-          }
-        )
+        .find(query, "matcher", {
+          limit: pagination.take,
+          skip: (pagination.page - 1) * pagination.take
+        })
         .populate({ path: "matcher" });
 
-      const totalCount = await this.getMatcherCount(matchee._id);
+      const totalCount = await this.matchRepository.count(query);
 
       const totalPages = Math.ceil(totalCount / pagination.take);
 
@@ -402,6 +400,13 @@ export class MatchService {
   async getMatchees(filter: MatchFilterInput, matcher: User) {
     try {
       const pagination = new FilterInput(filter?.take, filter?.page);
+
+      const query = {
+        matcher: matcher._id,
+        status: {
+          $in: [MatchStatusType.Draft, MatchStatusType.AcceptedByStudent]
+        }
+      };
 
       if (filter?.keyword) {
         const keywords = [
@@ -443,20 +448,26 @@ export class MatchService {
       }
 
       const matchees = await this.matchRepository
-        .find({ matcher: matcher._id }, "matchee", {
+        .find(query, "matchee", {
           limit: pagination.take,
           skip: (pagination.page - 1) * pagination.take
         })
         .populate({ path: "matchee" });
 
-      const totalCount = await this.getMatcheeCount(matcher._id);
+      const totalCount = await this.matchRepository.count(query);
 
       const totalPages = Math.ceil(totalCount / pagination.take);
 
       return {
         totalCount,
         totalPages,
-        list: matchees.map(({ matchee }) => matchee)
+        list: matchees.map(({ id, matchee }) => {
+          matchee.matchId = id;
+
+          matchee.isMatched = true;
+
+          return matchee;
+        })
       };
     } catch (error) {
       throw new InternalServerErrorException(error);
