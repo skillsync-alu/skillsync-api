@@ -1,19 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { OtpResolver } from './otp.resolver';
-import { OtpService } from './otp.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { OtpResolver } from "./otp.resolver";
+import { OtpService } from "./otp.service";
 
-describe('OtpResolver', () => {
+describe("OtpResolver", () => {
   let resolver: OtpResolver;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OtpResolver, OtpService],
+      providers: [OtpResolver, OtpService]
     }).compile();
 
     resolver = module.get<OtpResolver>(OtpResolver);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(resolver).toBeDefined();
   });
 });

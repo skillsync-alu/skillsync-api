@@ -344,8 +344,9 @@ export class AuthenticationService {
   async resetPassword(input: ResetPasswordInput) {
     try {
       const identifier = await this.otpService.verifyOtp(input.code);
-      if(!identifier){
-        throw new BadRequestException(Invalid_OTP_Method_Message)
+
+      if (!identifier) {
+        throw new BadRequestException(Invalid_OTP_Method_Message);
       }
       const user = await this.userRepository.findByIdentity(identifier);
 

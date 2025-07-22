@@ -13,7 +13,7 @@ if (!admin.apps.length && config.firebase.privateKey) {
       })
     });
   } catch (error) {
-    console.warn('Firebase initialization failed:', error.message);
+    console.warn("Firebase initialization failed:", error.message);
   }
 }
 

@@ -11,8 +11,8 @@ import { AuthenticationModule } from "./authentication/authentication.module";
 import { MatchModule } from "./matches/match.module";
 import { StarModule } from "./stars/star.module";
 import { ScheduleModule } from "@nestjs/schedule";
-import { OtpModule } from './otp/otp.module';
-import { FeedbackModule } from './feedback/feedback.module';
+import { OtpModule } from "./otp/otp.module";
+import { FeedbackModule } from "./feedback/feedback.module";
 
 const GraphQLModules = [
   UserModule,

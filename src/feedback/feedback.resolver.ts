@@ -1,5 +1,5 @@
-import { Resolver } from '@nestjs/graphql';
-import { FeedbackService } from './feedback.service';
+import { Resolver } from "@nestjs/graphql";
+import { FeedbackService } from "./feedback.service";
 
 @Resolver()
 export class FeedbackResolver {
