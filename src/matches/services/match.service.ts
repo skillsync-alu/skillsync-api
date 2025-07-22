@@ -244,6 +244,16 @@ export class MatchService {
             )
           ) {
             await this.confirm(match, session);
+          } else {
+            const draftStatus = match.statuses?.find(
+              status => status.type === MatchStatusType.Draft
+            );
+
+            if (draftStatus && draftStatus.createdBy) {
+              throw new BadRequestException(
+                "You cannot accept a match created by the student who has not accepted yet"
+              );
+            }
           }
         }
 
@@ -473,7 +483,10 @@ export class MatchService {
 
           matchee.isStudentMatched = Boolean(
             statuses.find(status => status.type === MatchStatusType.Draft)
-              ?.createdBy
+              ?.createdBy &&
+              statuses.some(
+                status => status.type === MatchStatusType.AcceptedByStudent
+              )
           );
 
           return matchee;
