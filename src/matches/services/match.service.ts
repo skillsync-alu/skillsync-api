@@ -23,6 +23,7 @@ import { paginate } from "../../utilities/paginate";
 import { Star, StarRepository } from "../../stars/models/star.model";
 import { UpdateMatchInput } from "../inputs/update-match.input";
 import { MessageService } from "../../shared/services/messages/services/message.service";
+import { AuthResponse } from "../../authentication/responses/authentication.response";
 
 @Injectable()
 export class MatchService {
@@ -475,35 +476,186 @@ export class MatchService {
   }
 
   async findMatchers(matchee: User) {
-    try {
-      if (matchee.skillsWanted && matchee.skillsWanted.length > 0) {
-        return await this.userRepository.find({
-          isDeleted: false,
-          type: UserType.Tutor,
-          skillsOfferred: { $all: matchee.skillsWanted }
-        });
-      }
+    return await inTransaction(this.connection, async session => {
+      try {
+        // Eligibility: user must have uploaded skillsWanted
+        if (!matchee.skillsWanted || matchee.skillsWanted.length === 0) {
+          throw new BadRequestException(
+            "You must add skills you want to learn to get matched."
+          );
+        }
 
-      return [];
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+        // Fetch all eligible tutors
+        const eligibleTutors = await this.userRepository
+          .find({
+            isDeleted: false,
+            type: UserType.Tutor,
+            skillsOfferred: { $exists: true, $not: { $size: 0 } }
+          })
+          .session(session);
+
+        // Fetch all matches for this user (as matchee or matcher)
+        const allMatches = await this.matchRepository
+          .find({ isDeleted: false })
+          .session(session);
+
+        // Helper: check if a match exists between matchee and tutor
+        const matchExists = (tutorId: string) => {
+          return allMatches.some(m => {
+            const matcherId = m.matcher.toString();
+
+            const matcheeId = m.matchee.toString();
+
+            return matcherId === tutorId && matcheeId === matchee.id;
+          });
+        };
+
+        let createdCount = 0;
+
+        for (const tutor of eligibleTutors) {
+          // At least half the skills overlap
+          const overlap = matchee.skillsWanted.filter(skill => {
+            return tutor.skillsOfferred.includes(skill);
+          });
+
+          const minSkills = Math.ceil(matchee.skillsWanted.length / 2);
+
+          if (overlap.length < minSkills) {
+            continue;
+          }
+
+          // Tutor not overbooked
+          const tutorId = tutor._id.toString();
+
+          const tutorMatches = allMatches.filter(
+            m => m.matcher.toString() === tutorId
+          );
+
+          const draftCount = tutorMatches.filter(
+            m => m.status === MatchStatusType.Draft
+          ).length;
+
+          const confirmedCount = tutorMatches.filter(
+            m => m.status === MatchStatusType.Confirmed
+          ).length;
+
+          if (confirmedCount >= 3 || draftCount + confirmedCount >= 6) {
+            continue;
+          }
+
+          // No existing match
+          if (matchExists(tutorId)) {
+            continue;
+          }
+
+          // Create match
+          await this.create(tutor, matchee, session);
+
+          createdCount++;
+        }
+
+        await session.commitTransaction();
+
+        return new AuthResponse(
+          true,
+          `${createdCount} match${createdCount === 1 ? "" : "es"} found.`
+        );
+      } catch (error) {
+        await session.abortTransaction();
+
+        throw new InternalServerErrorException(error);
+      }
+    });
   }
 
   async findMatchees(matcher: User) {
-    try {
-      if (matcher.skillsOfferred && matcher.skillsOfferred.length > 0) {
-        return await this.userRepository.find({
+    return await inTransaction(this.connection, async session => {
+      try {
+        // Eligibility: tutor must have uploaded skillsOfferred
+        if (!matcher.skillsOfferred || matcher.skillsOfferred.length === 0) {
+          throw new BadRequestException(
+            "You must add skills you can teach to get matched."
+          );
+        }
+
+        // Fetch all eligible students
+        const eligibleUsers = await this.userRepository.find({
           isDeleted: false,
           type: UserType.User,
-          skillsWanted: { $all: matcher.skillsOfferred }
+          skillsWanted: { $exists: true, $not: { $size: 0 } }
         });
-      }
 
-      return [];
-    } catch (error) {
-      throw new InternalServerErrorException(error);
-    }
+        // Fetch all matches for this tutor (as matcher or matchee)
+        const allMatches = await this.matchRepository
+          .find({ isDeleted: false })
+          .session(session);
+
+        // Helper: check if a match exists between matcher and user
+        const matchExists = (userId: string) => {
+          return allMatches.some(m => {
+            const matcherId = m.matcher.toString();
+
+            const matcheeId = m.matchee.toString();
+
+            return matcherId === matcher.id && matcheeId === userId;
+          });
+        };
+
+        let createdCount = 0;
+
+        for (const user of eligibleUsers) {
+          // At least half the skills overlap
+          const overlap = matcher.skillsOfferred.filter(skill => {
+            return user.skillsWanted.includes(skill);
+          });
+
+          const minSkills = Math.ceil(user.skillsWanted.length / 2);
+
+          if (overlap.length < minSkills) {
+            continue;
+          }
+
+          // User not overbooked
+          const userId = user._id.toString();
+
+          const userMatches = allMatches.filter(
+            m =>
+              m.matcher.toString() === userId || m.matchee.toString() === userId
+          );
+
+          const draftCount = userMatches.filter(
+            m => m.status === MatchStatusType.Draft
+          ).length;
+
+          const confirmedCount = userMatches.filter(
+            m => m.status === MatchStatusType.Confirmed
+          ).length;
+
+          if (confirmedCount >= 3 || draftCount >= 6) {
+            continue;
+          }
+
+          // No existing match
+          if (matchExists(userId)) {
+            continue;
+          }
+
+          // Create match
+          await this.create(matcher, user, session);
+
+          createdCount++;
+        }
+
+        await session.commitTransaction();
+
+        return new AuthResponse(
+          true,
+          `${createdCount} match${createdCount === 1 ? "" : "es"} found.`
+        );
+      } catch (error) {
+        throw new InternalServerErrorException(error);
+      }
+    });
   }
 
   @Cron("0 6,14,22 * * *", { name: "dailyMatchmaking" })
@@ -528,20 +680,8 @@ export class MatchService {
           })
           .session(session);
 
-        // Pre-fetch all matches for efficiency
-        const allUserIds = [
-          ...eligibleUsers.map(u => u._id.toString()),
-          ...eligibleTutors.map(t => t._id.toString())
-        ];
-
         const allMatches = await this.matchRepository
-          .find({
-            isDeleted: false,
-            $or: [
-              { matcher: { $in: allUserIds } },
-              { matchee: { $in: allUserIds } }
-            ]
-          })
+          .find({ isDeleted: false })
           .session(session);
 
         // Helper: count matches by user and status
@@ -562,9 +702,11 @@ export class MatchService {
 
           if (match.status === MatchStatusType.Confirmed) {
             matchCounts[matcherId].confirmed++;
+
             matchCounts[matcheeId].confirmed++;
           } else if (match.status === MatchStatusType.Draft) {
             matchCounts[matcherId].draft++;
+
             matchCounts[matcheeId].draft++;
           }
         }
