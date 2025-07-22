@@ -462,10 +462,15 @@ export class MatchService {
       return {
         totalCount,
         totalPages,
-        list: matchees.map(({ id, matchee }) => {
+        list: matchees.map(({ id, matchee, statuses }) => {
           matchee.matchId = id;
 
           matchee.isMatched = true;
+
+          matchee.isStudentMatched = Boolean(
+            statuses.find(status => status.type === MatchStatusType.Draft)
+              ?.createdBy
+          );
 
           return matchee;
         })
@@ -549,7 +554,7 @@ export class MatchService {
           }
 
           // Create match
-          await this.create(tutor, matchee, session);
+          await this.create(tutor, matchee, session, false);
 
           createdCount++;
         }
