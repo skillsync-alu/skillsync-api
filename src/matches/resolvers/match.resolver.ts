@@ -14,6 +14,7 @@ import { Types } from "mongoose";
 import { Roles } from "../../authentication/guards/roles.guard";
 import { UserType } from "../../users/interfaces/user.interface";
 import { UpdateMatchInput } from "../inputs/update-match.input";
+import { AuthResponse } from '../../authentication/responses/authentication.response';
 
 @UseGuards(Guard)
 @Resolver()
@@ -77,4 +78,21 @@ export class MatchResolver {
   ) {
     return await this.matchService.updateMatchAsTutor(input, matchee);
   }
+
+  @UseGuards(Guard, Roles([UserType.User]))
+  @Mutation(() => AuthResponse)
+  async findMatchers(
+    @CurrentUser() matchee: User
+  ) {
+    return await this.matchService.findMatchers(matchee);
+  }
+
+  @UseGuards(Guard, Roles([UserType.Tutor]))
+  @Mutation(() => AuthResponse)
+  async findMatchees(
+    @CurrentUser() matcher: User
+  ) {
+    return await this.matchService.findMatchees(matcher);
+  }
+
 }
