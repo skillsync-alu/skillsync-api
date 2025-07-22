@@ -7,14 +7,20 @@ import { User } from "src/users/models/user.model";
 @Schema({ timestamps: true })
 @ObjectType()
 export class Feedback extends Document {
-    @Field(() =>String)
-    @Prop({type:String,required: true})
-    message:string;
-    @Field(() =>User)
-    @Prop({type:Types.ObjectId,ref: User.name,required:true})
-    user:User;
+  @Field(() => String)
+  @Prop({ type: String, required: true })
+  message: string;
+
+  @Field(() => User)
+  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
+  user: User;
 }
 
 export const Feedbackschema = SchemaFactory.createForClass(Feedback);
-export const Feedbackmodel: ModelDefinition = {name: Feedback.name,schema:Feedbackschema}
+
+export const Feedbackmodel: ModelDefinition = {
+  name: Feedback.name,
+  schema: Feedbackschema
+};
+
 export type FeedbackRepository = Model<Feedback>;

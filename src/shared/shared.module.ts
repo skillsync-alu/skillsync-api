@@ -8,7 +8,13 @@ import { MailService } from "./services/email/services/mail.service";
 
 @Module({
   exports: [EncryptionService, PaginationService, MessageService, MailService],
-  providers: [Logger, EncryptionService, PaginationService, MessageService, MailService],
+  providers: [
+    Logger,
+    EncryptionService,
+    PaginationService,
+    MessageService,
+    MailService
+  ],
   imports: [JwtModule.register({ secret: config.tokenization.secret })]
 })
 export class SharedModule {}
