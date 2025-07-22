@@ -114,6 +114,8 @@ export class User extends Document {
 
   @Field(() => Boolean, { nullable: true })
   isMatched?: boolean;
+  @Field(() => Boolean, { nullable: true })
+  isStudentMatched?: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
