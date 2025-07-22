@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { FeedbackResolver } from "./feedback.resolver";
-import { FeedbackService } from "./feedback.service";
+import { FeedbackService } from "../services/feedback.service";
 
 describe("FeedbackResolver", () => {
   let resolver: FeedbackResolver;

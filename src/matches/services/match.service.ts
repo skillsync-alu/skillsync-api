@@ -24,11 +24,13 @@ import { Star, StarRepository } from "../../stars/models/star.model";
 import { UpdateMatchInput } from "../inputs/update-match.input";
 import { MessageService } from "../../shared/services/messages/services/message.service";
 import { AuthResponse } from "../../authentication/responses/authentication.response";
+import { FeedbackService } from "../../feedbacks/services/feedback.service";
 
 @Injectable()
 export class MatchService {
   constructor(
     private readonly messageService: MessageService,
+    private readonly feedbackService: FeedbackService,
     private readonly paginationService: PaginationService,
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Star.name) private readonly starRepository: StarRepository,
@@ -92,6 +94,8 @@ export class MatchService {
       match.isConfirmed = true;
 
       match.statuses.push(this.addStatus(MatchStatusType.Confirmed));
+
+      await this.feedbackService.create(match, session);
 
       await this.messageService.createChatDocument({
         matchId: match.id,
@@ -449,7 +453,7 @@ export class MatchService {
       }
 
       const matchees = await this.matchRepository
-        .find(query, "matchee", {
+        .find(query, "matchee statuses", {
           limit: pagination.take,
           skip: (pagination.page - 1) * pagination.take
         })
