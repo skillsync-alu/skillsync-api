@@ -95,12 +95,12 @@ export class MatchService {
 
       match.statuses.push(this.addStatus(MatchStatusType.Confirmed));
 
-      await this.feedbackService.create(match, session);
-
       await this.messageService.createChatDocument({
         matchId: match.id,
         participants: [match.matcher.toString(), match.matchee.toString()]
       });
+
+      await this.feedbackService.create(match, session);
 
       return await match.save({ session });
     } catch (error) {
