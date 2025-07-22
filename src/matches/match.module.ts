@@ -6,12 +6,14 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { MatchModel } from "./models/match.model";
 import { UserModel } from "../users/models/user.model";
 import { StarModel } from "../stars/models/star.model";
+import { FeedbackModule } from "../feedbacks/feedback.module";
 
 @Module({
   exports: [MatchService],
   providers: [MatchResolver, MatchService],
   imports: [
     SharedModule,
+    FeedbackModule,
     MongooseModule.forFeature([MatchModel, UserModel, StarModel])
   ]
 })
