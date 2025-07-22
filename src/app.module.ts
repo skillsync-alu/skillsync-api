@@ -20,7 +20,8 @@ const GraphQLModules = [
   MatchModule,
   SharedModule,
   AuthenticationModule,
-  OtpModule
+  OtpModule,
+  FeedbackModule
 ];
 
 const ServerModules = [
@@ -44,6 +45,6 @@ const ServerModules = [
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [...ServerModules, ...GraphQLModules, OtpModule, FeedbackModule]
+  imports: [...ServerModules, ...GraphQLModules]
 })
 export class AppModule {}
