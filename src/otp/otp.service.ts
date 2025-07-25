@@ -40,12 +40,12 @@ export class OtpService {
         subject: "Your OTP Code",
         htmlContent: `<p>Your OTP code is: <b>${code}</b></p>`,
         senderName: "SkillSync",
-        senderEmail: "difebi14@gmail.com" // Use your verified email
+        senderEmail: "difebi14@gmail.com" 
       });
       return true;
     } catch (error) {
       console.error("Failed to send OTP email:", error.message);
-      this.otpStore.delete(code); // Clean up if sending fails
+      this.otpStore.delete(code); 
       return false;
     }
   }

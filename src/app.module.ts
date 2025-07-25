@@ -14,6 +14,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { OtpModule } from "./otp/otp.module";
 import { FeedbackModule } from "./feedbacks/feedback.module";
 
+// These are all the modules that use GraphQL
 const GraphQLModules = [
   UserModule,
   StarModule,
@@ -24,6 +25,7 @@ const GraphQLModules = [
   FeedbackModule
 ];
 
+// These are the main server modules (DB, GraphQL, scheduling, etc.)
 const ServerModules = [
   MongooseModule.forRoot(config.database.uri),
   GraphQLModule.forRoot({
@@ -42,6 +44,10 @@ const ServerModules = [
   ScheduleModule.forRoot()
 ];
 
+/*
+  This is the main app module. It brings together all the features of the app
+  by importing all the other modules, and sets up the main controller and service.
+*/
 @Module({
   controllers: [AppController],
   providers: [AppService],
