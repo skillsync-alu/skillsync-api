@@ -12,11 +12,13 @@ import {
   JWT_Token_Expired_Message
 } from "../messages/authentication.message";
 
+// This guard checks if the user is authenticated using JWT
 @Injectable()
 export class Guard extends AuthGuard("jwt") {
   canActivate(
     reqContext: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
+    // Support both GraphQL and HTTP requests
     const gqlExecutionContext = GqlExecutionContext.create(reqContext);
     const context = gqlExecutionContext.getContext();
     const request = context?.req ?? reqContext.switchToHttp().getRequest();
@@ -24,13 +26,14 @@ export class Guard extends AuthGuard("jwt") {
   }
 
   handleRequest(err: any, user: any, info: any): any {
+    // If there's an error or no user, throw an error
     if (err || !user) {
       if (info?.message?.includes("jwt expired")) {
         throw new UnauthorizedException(JWT_Token_Expired_Message);
       }
       throw new UnauthorizedException(Empty_Token_Error_Message);
     }
-
+    // If all good, return the user
     return user;
   }
 }
