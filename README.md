@@ -69,19 +69,22 @@ Create a `.env` file in the root directory with the following variables:
 
 ```env
 # Database Configuration
-DATABASE_URL=your_database_connection_string
+DATABASE_URI=your_database_connection_string
+
+# Port Number to run
+PORT=*****
+
+# Environment type (local, development, production)
+ENVIRONMENT=local
+
+# Brevo api key for sending mails
+BREVO_API_KEY=xkeysib-*******
 
 # JWT Configuration
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRES_IN=24h
+JWT_SECRET=***********
 
-# Brevo API Configuration (for OTP)
-BREVO_API_KEY=your_brevo_api_key
-BREVO_SENDER_EMAIL=your_sender_email
-
-# Server Configuration
-PORT=3000
-NODE_ENV=development
+#Firebase
+FIREBASE_PRIVATE_KEY=***********
 ```
 
 ---
@@ -121,11 +124,11 @@ yarn test:cov
 
 ```
 src/
-├── auth/                 # Authentication module
+├── authentication/                 # Authentication module
 ├── users/               # User management
-├── matching/            # Match-making algorithms
-├── messaging/           # Real-time messaging
-├── common/              # Shared utilities and decorators
+├── matches/            # Match-making algorithms
+├── feedbacks/           # Real-time messaging
+├── shared/              # Shared utilities and decorators
 ├── config/              # Configuration files
 └── main.ts             # Application entry point
 ```
