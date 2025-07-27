@@ -33,6 +33,7 @@ const ServerModules = [
       credentials: true,
       origin: true
     },
+    introspection: true,
     debug: config.isLocal,
     playground: config.isLocal,
     autoSchemaFile: true,
